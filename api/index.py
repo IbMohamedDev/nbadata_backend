@@ -126,14 +126,19 @@ def fetch_nba_api(player_name):
 #function to fetch shot chart data from local json file     
 def fetch_shot_data(player_id):
     try:
-        df = pd.read_json('api/shots.json')
-        df.set_index('playerId',inplace=True)
-       
-        return df.loc[player_id].to_list()
+        with open('api/shots.json', 'r') as f:
+            shots_data = json.load(f)
+        
+        player = next((p for p in shots_data if p['playerId'] == player_id), None)
+        
+        if player is None:
+            print(f"No shot data found for {player_id}")
+            return []
+        
+        return player['shots']  # ✅ returns the flat array of shot objects
     except Exception as e:
         print("Error fetch_shot_data:", e)
-        return None
-
+        return []
 
 # API endpoint to fetch multiple player images
 # @app.route('/players/imgs', methods=['GET'])
